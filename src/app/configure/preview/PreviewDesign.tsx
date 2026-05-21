@@ -12,17 +12,25 @@ import { ArrowRight, Check } from "lucide-react";
 import { BASE_PRICE, PRODUCT_PRICES } from "@/config/product";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
+import { createCheckoutSession } from "./action";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import LoginModal from "@/components/LoginModal";
 
 export default function PreviewPage({
   configuration,
 }: {
   configuration: Configuration;
 }) {
+  const { user } = useKindeBrowserClient();
+  const router = useRouter();
   const [confettiActive, setConfettiActive] = useState<boolean>(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   useEffect(() => setConfettiActive(true), []);
 
-  const { color, model, finish, material } = configuration;
+  const { id, color, model, finish, material } = configuration;
 
   const tw = COLORS.find(
     (supportedColor) => supportedColor.value === color,
@@ -40,10 +48,29 @@ export default function PreviewPage({
     totalPrice += PRODUCT_PRICES.finish.textured;
   }
 
-  //   const {mutate} = useMutation({
-  //   mutationKey: ["get-checkout-session"],
-  //   mutationFn:
-  // })
+  const { mutate } = useMutation({
+    mutationKey: ["get-checkout-session"],
+    mutationFn: createCheckoutSession,
+    onSuccess: ({ url }) => {
+      if (url) {
+        router.push(url);
+      } else throw new Error("Unable to create checkout session");
+    },
+    onError: () => {
+      toast.error(
+        "Something went wrong while creating checkout session. Please try again.",
+      );
+    },
+  });
+
+  const handleCheckout = () => {
+    if (user) {
+      mutate(id);
+    } else {
+      localStorage.setItem("configurationId", id);
+      setIsLoginModalOpen(true);
+    }
+  };
 
   return (
     <>
@@ -56,6 +83,7 @@ export default function PreviewPage({
           config={{ elementCount: 400, spread: 360, startVelocity: 40 }}
         />
       </div>
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
       <div
         className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 
       sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12"
