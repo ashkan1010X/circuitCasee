@@ -25,6 +25,7 @@ export default async function Navbar() {
               <>
                 <Link
                   href="/api/auth/logout"
+                  prefetch={false}
                   className={buttonVariants({
                     size: "sm",
                     variant: "ghost",
