@@ -24,7 +24,7 @@ export default async function Navbar() {
             {user ? (
               <>
                 <Link
-                  href="/api/auth/logout"
+                  href={`/api/auth/logout?post_logout_redirect_url=${process.env.NEXT_PUBLIC_BASE_URL}`}
                   prefetch={false}
                   className={buttonVariants({
                     size: "sm",
