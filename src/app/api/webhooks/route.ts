@@ -14,11 +14,20 @@ export async function POST(req: Request) {
       return new Response("Missing signature", { status: 400 });
     }
 
-    const event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!,
-    );
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET!,
+      );
+    } catch (err) {
+      console.error("Signature verification failed:", err);
+      return NextResponse.json(
+        { message: "Signature verification failed" },
+        { status: 400 },
+      );
+    }
 
     if (event.type === "checkout.session.completed") {
       if (!event.data.object.customer_details?.email) {
