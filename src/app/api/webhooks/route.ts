@@ -44,23 +44,43 @@ export async function POST(req: Request) {
         data: {
           isPaid: true,
           shippingAddress: {
-            create: {
-              name: session.customer_details!.name!,
-              city: shippingAddress!.city!,
-              country: shippingAddress!.country!,
-              postalCode: shippingAddress!.postal_code!,
-              street: shippingAddress!.line1!,
-              state: shippingAddress!.state!,
+            upsert: {
+              create: {
+                name: session.customer_details!.name!,
+                city: shippingAddress!.city!,
+                country: shippingAddress!.country!,
+                postalCode: shippingAddress!.postal_code!,
+                street: shippingAddress!.line1!,
+                state: shippingAddress!.state!,
+              },
+              update: {
+                name: session.customer_details!.name!,
+                city: shippingAddress!.city!,
+                country: shippingAddress!.country!,
+                postalCode: shippingAddress!.postal_code!,
+                street: shippingAddress!.line1!,
+                state: shippingAddress!.state!,
+              },
             },
           },
           billingAddress: {
-            create: {
-              name: session.customer_details!.name!,
-              city: billingAddress!.city!,
-              country: billingAddress!.country!,
-              postalCode: billingAddress!.postal_code!,
-              street: billingAddress!.line1!,
-              state: billingAddress!.state!,
+            upsert: {
+              create: {
+                name: session.customer_details!.name!,
+                city: billingAddress!.city!,
+                country: billingAddress!.country!,
+                postalCode: billingAddress!.postal_code!,
+                street: billingAddress!.line1!,
+                state: billingAddress!.state!,
+              },
+              update: {
+                name: session.customer_details!.name!,
+                city: billingAddress!.city!,
+                country: billingAddress!.country!,
+                postalCode: billingAddress!.postal_code!,
+                street: billingAddress!.line1!,
+                state: billingAddress!.state!,
+              },
             },
           },
         },
@@ -72,7 +92,7 @@ export async function POST(req: Request) {
     console.error(err);
 
     return NextResponse.json(
-      { message: "Something went wrong", ok: false },
+      { message: "WRONGGGG", ok: false },
       { status: 500 },
     );
   }
