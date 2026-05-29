@@ -89,10 +89,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ result: event, ok: true });
   } catch (err) {
-    console.error(err);
+    console.error("Webhook error:", err);
+    const errorMessage =
+      err instanceof Error ? err.message : JSON.stringify(err);
 
     return NextResponse.json(
-      { message: "WRONGGGG", ok: false },
+      { message: errorMessage, ok: false },
       { status: 500 },
     );
   }
