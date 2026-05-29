@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { Stripe } from "stripe";
+import Stripe from "stripe";
 
 export async function POST(req: Request) {
   try {
@@ -14,10 +14,10 @@ export async function POST(req: Request) {
       return new Response("Missing signature", { status: 400 });
     }
 
-    const event = await stripe.webhooks.constructEvent(
+    const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET,
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
 
     if (event.type === "checkout.session.completed") {
@@ -39,10 +39,8 @@ export async function POST(req: Request) {
       const billingAddress = session.customer_details!.address;
       const shippingAddress = session.customer_details!.address;
 
-      const updatedOrder = await db.order.update({
-        where: {
-          id: orderId,
-        },
+      await db.order.update({
+        where: { id: orderId },
         data: {
           isPaid: true,
           shippingAddress: {
@@ -68,6 +66,7 @@ export async function POST(req: Request) {
         },
       });
     }
+
     return NextResponse.json({ result: event, ok: true });
   } catch (err) {
     console.error(err);
